@@ -1,0 +1,212 @@
+SHOW DATABASES;
+
+CREATE DATABASE Watch_store;
+
+USE Watch_store;
+
+SHOW TABLES;
+
+CREATE TABLE customers (
+
+id INT AUTO_INCREMENT PRIMARY KEY,
+first_name VARCHAR(30) NOT NULL,
+last_name VARCHAR(30) NOT NULL,
+gender ENUM('M','F'),
+phone_number VARCHAR(11) NOT NULL,
+email VARCHAR(30) NOT NULL UNIQUE,
+address VARCHAR(80),
+pincode VARCHAR(10)
+);
+
+INSERT INTO customers (first_name,last_name,gender,phone_number,email,address,pincode)
+VALUES ('Pavan','Varma','M','9948167262','pavanvarma18@gmail.com','Vijayawada,Andhra Pradesh','520005');
+
+SELECT * FROM customers;
+
++----+------------+-----------+--------+--------------+------------------------+---------------------------+---------+
+| id | first_name | last_name | gender | phone_number | email                  | address                   | pincode |
++----+------------+-----------+--------+--------------+------------------------+---------------------------+---------+
+|  1 | Pavan      | Varma     | M      | 9948167262   | pavanvarma18@gmail.com | Vijayawada,Andhra Pradesh | 520005  |
++----+------------+-----------+--------+--------------+------------------------+---------------------------+---------+
+
+
+
+CREATE TABLE p_category (
+
+id INT PRIMARY KEY AUTO_INCREMENT,
+category_name VARCHAR(20) NOT NULL,
+category_type VARCHAR(50)
+);
+
+INSERT INTO p_category (category_name,category_type)
+VALUES ('Digital','Digital Watches');
+
+SELECT * FROM p_category;
+
++----+---------------+-----------------+
+| id | category_name | category_type   |
++----+---------------+-----------------+
+|  1 | Digital       | Digital Watches |
++----+---------------+-----------------+
+
+
+CREATE TABLE products (
+
+id INT AUTO_INCREMENT PRIMARY KEY,
+category_id INT,
+product_name VARCHAR(30) NOT NULL UNIQUE,
+price DECIMAL(10,2)NOT NULL,
+FOREIGN KEY (category_id) REFERENCES p_category(id)
+);
+
+INSERT INTO products (category_id,product_name,price)
+VALUES ('1','Atos Digital',7999);
+
+SELECT * FROM products;
+
++----+-------------+--------------+---------+
+| id | category_id | product_name | price   |
++----+-------------+--------------+---------+
+|  1 |           1 | Atos Digital | 7999.00 |
++----+-------------+--------------+---------+
+
+
+CREATE TABLE orders (
+
+id INT AUTO_INCREMENT PRIMARY KEY,
+product_id INT,
+customer_id INT,
+order_date DATE,
+order_amount DECIMAL(10,2),
+FOREIGN KEY (product_id) REFERENCES products(id),
+FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
+
+INSERT INTO orders (product_id,customer_id,order_date,order_amount)
+VALUES ('1','1','2022-11-23',7999);
+
+SELECT * FROM orders;
+
++----+------------+-------------+------------+--------------+
+| id | product_id | customer_id | order_date | order_amount |
++----+------------+-------------+------------+--------------+
+|  1 |          1 |           1 | 2022-11-23 |      7999.00 |
++----+------------+-------------+------------+--------------+
+
+
+CREATE TABLE cart (
+
+id INT AUTO_INCREMENT PRIMARY KEY,
+product_id INT,
+quantity INT,
+FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+INSERT INTO cart (product_id,quantity)
+VALUES ('1','1');
+
+SELECT * FROM cart;
+
++----+------------+----------+
+| id | product_id | quantity |
++----+------------+----------+
+|  1 |          1 |        1 |
++----+------------+----------+
+
+
+CREATE TABLE payment (
+
+id INT AUTO_INCREMENT PRIMARY KEY,
+customer_id INT,
+order_id INT,
+total_amount DECIMAL(10,2),
+payment_type VARCHAR(20),
+FOREIGN KEY (customer_id) REFERENCES customers(id),
+FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+
+INSERT INTO payment (customer_id,order_id,total_amount,payment_type)
+VALUES ('1','1',7999,'Credit card');
+
+SELECT * FROM payment;
+
++----+-------------+----------+--------------+--------------+
+| id | customer_id | order_id | total_amount | payment_type |
++----+-------------+----------+--------------+--------------+
+|  1 |           1 |        1 |      7999.00 | Credit card  |
++----+-------------+----------+--------------+--------------+
+
+
+CREATE TABLE coupon (
+
+id INT AUTO_INCREMENT PRIMARY KEY,
+coupon_name VARCHAR(20),
+discount VARCHAR(10) NOT NULL
+);
+
+INSERT INTO coupon (coupon_name,discount)
+VALUES ('WIN20','20%');
+
+SELECT * FROM coupon;
+
++----+-------------+----------+
+| id | coupon_name | discount |
++----+-------------+----------+
+|  1 | WIN20       | 20%      |
++----+-------------+----------+
+
+
+CREATE TABLE transaction_details (
+
+id INT AUTO_INCREMENT PRIMARY KEY,
+customer_id INT,
+product_id INT,
+order_id INT,
+payment_id INT,
+total_amount DECIMAL(10,2),
+transaction_date DATETIME,
+payment_method VARCHAR(20),
+FOREIGN KEY (customer_id) REFERENCES customers(id),
+FOREIGN KEY (product_id) REFERENCES products(id),
+FOREIGN KEY (order_id) REFERENCES orders(id),
+FOREIGN KEY (payment_id) REFERENCES payment(id)
+);
+
+INSERT INTO transaction_details (customer_id,product_id,order_id,payment_id,total_amount,transaction_date,payment_method)
+VALUES (1,1,1,1,7999,'2022-11-23 10:15:26','Credit card');
+
+SELECT * FROM transaction_details;
+
++----+-------------+------------+----------+------------+--------------+---------------------+----------------+
+| id | customer_id | product_id | order_id | payment_id | total_amount | transaction_date    | payment_method |
++----+-------------+------------+----------+------------+--------------+---------------------+----------------+
+|  1 |           1 |          1 |        1 |          1 |      7999.00 | 2022-11-23 10:15:26 | Credit card    |
++----+-------------+------------+----------+------------+--------------+---------------------+----------------+
+
+
+CREATE TABLE tracking_details (
+
+id INT AUTO_INCREMENT PRIMARY KEY,
+customer_id INT,
+order_id INT,
+product_id INT,
+delivery_date DATE,
+FOREIGN KEY (customer_id) REFERENCES customers(id),
+FOREIGN KEY (product_id) REFERENCES products(id),
+FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+
+INSERT INTO tracking_details (customer_id,order_id,product_id,delivery_date)
+VALUES (1,1,1,'2022-12-01');
+
+SELECT * FROM tracking_details;
+
++----+-------------+----------+------------+---------------+
+| id | customer_id | order_id | product_id | delivery_date |
++----+-------------+----------+------------+---------------+
+|  1 |           1 |        1 |          1 | 2022-12-01    |
++----+-------------+----------+------------+---------------+
+
+
+
+
